@@ -16,7 +16,7 @@ case class DemoComponent() extends Component {
   io.resOut := RegNext(io.aIn +^ io.bIn, io.resOut.getZero)
 }
 
-class DemoTest extends SpinalTester[DemoComponent] {
+class TesterDemo extends SpinalTester[DemoComponent] {
   def createTop: DemoComponent = DemoComponent()
 
   def sim: Seq[SimTest[DemoComponent]] = Seq(

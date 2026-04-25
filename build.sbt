@@ -1,8 +1,28 @@
-ThisBuild / version := "0.1.7"
+ThisBuild / version := "0.1.0"
 ThisBuild / scalaVersion := "2.12.18"
 ThisBuild / organization := "io.github.fpgakeypulse"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / publishMavenStyle := true
+
+val githubPackagesRepository = "https://maven.pkg.github.com/fpgakeypulse/FPGAKeyPulse-core"
+
+ThisBuild / publishTo := Some("github" at githubPackagesRepository)
+
+ThisBuild / pomExtra :=
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>{githubPackagesRepository}</url>
+    </repository>
+  </distributionManagement>
+
+ThisBuild / credentials ++= {
+  for {
+    actor <- sys.env.get("GITHUB_ACTOR")
+    token <- sys.env.get("GITHUB_TOKEN")
+  } yield Credentials("GitHub Packages", "maven.pkg.github.com", actor, token)
+}.toSeq
 
 val spinalVersion = "1.14.1"
 val spinalCore = "com.github.spinalhdl" %% "spinalhdl-core" % spinalVersion
