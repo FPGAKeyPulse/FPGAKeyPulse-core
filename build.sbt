@@ -12,7 +12,7 @@ ThisBuild / pomExtra :=
   <distributionManagement>
     <repository>
       <id>github</id>
-      <name>GitHub Packages</name>
+      <name>GitHub FPGAKeyPulse Apache Maven Packages</name>
       <url>{githubPackagesRepository}</url>
     </repository>
   </distributionManagement>
