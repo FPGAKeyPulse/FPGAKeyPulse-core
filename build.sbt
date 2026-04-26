@@ -21,7 +21,7 @@ ThisBuild / credentials ++= {
   for {
     actor <- sys.env.get("GITHUB_ACTOR")
     token <- sys.env.get("GITHUB_TOKEN")
-  } yield Credentials("GitHub Packages", "maven.pkg.github.com", actor, token)
+  } yield Credentials("GitHub Package Registry", "maven.pkg.github.com", actor, token)
 }.toSeq
 
 val spinalVersion = "1.14.1"

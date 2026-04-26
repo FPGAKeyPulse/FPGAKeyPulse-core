@@ -1,5 +1,6 @@
 # FPGAKeyPulse Core
 
+[![Release](https://github.com/FPGAKeyPulse/FPGAKeyPulse-core/actions/workflows/ci.yml/badge.svg)](https://github.com/FPGAKeyPulse/FPGAKeyPulse-core/actions/workflows/ci.yml)
 [![Contributors](https://img.shields.io/github/contributors/FPGAKeyPulse/FPGAKeyPulse-core)](https://github.com/FPGAKeyPulse/FPGAKeyPulse-core/graphs/contributors)
 
 FPGAKeyPulse Core is a SpinalHDL-based hardware core library for building FPGA keyboard firmware.
