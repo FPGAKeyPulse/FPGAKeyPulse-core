@@ -234,6 +234,9 @@ object UsbHidKeyboardDescriptors {
     0xc0 // End Collection
   )
 
+  val hid: Seq[Int] =
+    Seq(9, 0x21) ++ le16(0x0111) ++ Seq(0, 1, 0x22) ++ le16(report.length)
+
   /*
    * Configuration Descriptor 描述“这个配置里有哪些 interface 和 endpoint”。
    * 下面的配置包含：
@@ -251,12 +254,8 @@ object UsbHidKeyboardDescriptors {
       9,
       0x02
     ) ++ le16(totalLength) ++ Seq(
-      1, 1, 0, 0xa0, 50, 9, 0x04, 0, 0, 1, 0x03, 0x01, 0x01, 0, 9, 0x21
-    ) ++ le16(0x0111) ++ Seq(
-      0,
-      1,
-      0x22
-    ) ++ le16(report.length) ++ Seq(
+      1, 1, 0, 0xa0, 50, 9, 0x04, 0, 0, 1, 0x03, 0x01, 0x01, 0
+    ) ++ hid ++ Seq(
       7,
       0x05,
       0x81,
