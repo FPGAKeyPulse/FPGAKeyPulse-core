@@ -61,7 +61,7 @@ jobs:
         run: sbt -batch clean test
 
       - name: Generate OOC targets
-        run: sbt -batch 'core/runMain keypulse.core.tools.GenerateOoc matrix' 'core/runMain keypulse.core.tools.GenerateOoc hid'
+        run: sbt -batch 'core/runMain keypulse.core.tools.GenerateOoc matrix' 'core/runMain keypulse.core.tools.GenerateOoc hid' 'core/runMain keypulse.core.tools.GenerateDebounceOoc'
 
   publish:
     name: Publish
