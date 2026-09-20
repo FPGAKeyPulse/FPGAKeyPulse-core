@@ -101,8 +101,10 @@ startup/device availability only. OOC still has to synthesize, place and route.
 
 In GitHub: repository Settings → Actions → Runners → New self-hosted runner →
 Linux x64. Copy only the short-lived registration token into a file on the host.
-Do not use a PAT as the runner token. File ownership must allow container UID
-1000 to read it; keep it mode 0400 or 0600 and never commit it.
+Do not use a PAT as the runner token. Only the host launcher needs to read this file; keep it mode 0400 or 0600 and
+never commit it. The launcher passes its content through stdin, never as a mount
+or environment variable. The entrypoint clears the token and closes stdin before
+starting the job listener.
 
 ```bash
 export RUNNER_TOKEN_FILE=/srv/keypulse-secrets/registration-token

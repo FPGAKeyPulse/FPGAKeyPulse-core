@@ -18,17 +18,18 @@ vivado -mode batch -nojournal -nolog -source /opt/keypulse/preflight.tcl >"$pref
 cat "$preflight_log"
 grep -q '^KEYPULSE_PREFLIGHT_OK ' "$preflight_log"
 if [[ "${1:-}" == '--check' ]]; then exit 0; fi
-: "${RUNNER_TOKEN_FILE:?Mount a short-lived registration token as a file}"
 : "${RUNNER_NAME:?Set a unique runner name}"
 : "${REPO_URL:=https://github.com/FPGAKeyPulse/FPGAKeyPulse-core}"
 [[ "$REPO_URL" =~ ^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || {
   echo 'REPO_URL must identify one GitHub repository' >&2; exit 1;
 }
 # Read without printing credentials; never bake a PAT into this image.
-IFS= read -r token < "$RUNNER_TOKEN_FILE" || [[ -n "${token:-}" ]]
+IFS= read -r token || [[ -n "${token:-}" ]]
 [[ -n "$token" ]] || { echo 'Empty registration token' >&2; exit 1; }
 ./config.sh --unattended --ephemeral --url "$REPO_URL" --token "$token" \
   --name "$RUNNER_NAME" --labels vivado --work _work
 unset token
+# Close the consumed token stream before executing any repository code.
+exec </dev/null
 # One job per container. Start another fresh container for the next OOC target.
 exec ./run.sh

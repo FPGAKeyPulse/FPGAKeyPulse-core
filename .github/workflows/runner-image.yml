@@ -29,6 +29,8 @@ jobs:
             echo 'Missing Vivado must fail preflight' >&2
             exit 1
           fi
+      - name: Verify registration credential lifetime
+        run: bash infra/vivado-runner/test-credentials.sh
       - name: Export runner image
         run: docker save keypulse-vivado-runner:test | zstd -T0 -o keypulse-vivado-runner.tar.zst
       - uses: actions/upload-artifact@v4
