@@ -20,6 +20,7 @@ class MatrixScanTest extends AnyFunSuite {
       SimConfig.withConfig(SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC)))
         .workspacePath(s"simWorkspace/matrix-$rows-$cols-$dwell")
         .compile(new MatrixScan(cfg)).doSim { dut =>
+          SimTimeout(2000000)
           val rng = new Random(0x1234)
           val mask = (BigInt(1) << cols) - 1
           var pressed = Array.fill(rows)(BigInt(0))
@@ -36,7 +37,7 @@ class MatrixScanTest extends AnyFunSuite {
           }
           for (epoch <- 0 until 20) {
             dut.clockDomain.assertReset()
-            dut.clockDomain.waitSampling(3)
+            sleep(30)
             sleep(1)
             assert(dut.io.frameKeys.toBigInt == 0)
             assert(!dut.io.frameValid.toBoolean)
