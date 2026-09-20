@@ -1,10 +1,22 @@
 # Validation gates
 
 Each feature is a draft PR until regression, review and routed OOC timing pass.
-Configure repository variables `FPGA_PART` (exact package/speed grade) and
-`VIVADO_OOC_ENABLED=true`, plus a disposable `self-hosted,linux,vivado` runner
-with Vivado and device support on PATH. No FPGA part is guessed by this project.
-The missing configuration job fails explicitly rather than reporting a skipped pass.
+OOC runs on GitHub-hosted Ubuntu 22.04 with a community image
+containing Vivado 2024.1, not Vivado Lab or a dependency-only image. It targets
+the user-selected MLK-S02-35T (`xc7a35tfgg484-2`) at 100 MHz. No self-hosted
+machine, runner registration token or repository secret is required.
+Image: `gusanagy/xilinx-vivado:2024.1-x11` (Docker Hub reports 23.2 GB; the
+workflow records the resolved manifest digest in `reports/image.json`).
+This is a third-party preinstalled tool distribution, not an AMD-published image
+or a reproduced AMD installer build. Record actual version, image digest and
+routed results in every artifact; availability and device support are verified
+by the real synthesis/implementation job, never inferred from the image name.
+After pulling, the Vivado container runs without networking, credentials, root
+privileges or a Docker socket, with only RTL/scripts and report mounts.
+The image is about 25 GB compressed; disposable runner SDKs are removed to make
+space. The workflow records the resolved digest, `vivado -version` and checks the exact part with
+`get_parts` before routing. Other Vivado versions require a separately validated
+image/digest.
 
 Run locally:
 
