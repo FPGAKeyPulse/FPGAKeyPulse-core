@@ -48,6 +48,7 @@ class Usb3HidTest extends AnyFunSuite {
   test("HID report snapshot survives arbitrary byte backpressure, input changes and reset") {
     SimConfig.withConfig(SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC)))
       .workspacePath("simWorkspace/hid-backpressure").compile(new HidKeyboard()).doSim { dut =>
+        SimTimeout(2000000)
         val rng = new Random(7)
         dut.io.send #= false
         dut.io.modifiers #= 0
@@ -95,7 +96,7 @@ class Usb3HidTest extends AnyFunSuite {
         step()
         dut.io.send #= false
         dut.clockDomain.assertReset()
-        step()
+        sleep(30)
         assert(!dut.io.report.valid.toBoolean)
         assert(dut.io.canSend.toBoolean)
         dut.clockDomain.deassertReset()
