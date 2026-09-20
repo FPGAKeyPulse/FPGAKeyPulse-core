@@ -17,8 +17,9 @@ vivado -mode batch -source scripts/ooc.tcl -tclargs "$FPGA_PART" MatrixScan gene
 Repeat for target `hid` / top `HidKeyboard`. New hardware features must add OOC
 targets. Reports contain routed setup/hold timing, CDC, DRC, utilization and checkpoint.
 The 2 ns synchronous boundary budget is a core benchmark; it is not a board pin,
-USB GPIF or mechanical-matrix timing constraint. Review check_timing and unconstrained
-paths before accepting the result. Board-level timing/electrical measurements are
+USB GPIF or mechanical-matrix timing constraint. Missing clocks and unconstrained/delay coverage checks fail closed, including
+unrecognized report format. Review check_timing and unconstrained paths before
+accepting the result. Board-level timing/electrical measurements are
 required after integration.
 
 The bot reports CI/OOC run conclusions and latest submitted reviews for the current

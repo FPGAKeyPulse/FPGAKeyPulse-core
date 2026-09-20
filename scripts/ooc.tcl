@@ -31,7 +31,15 @@ report_utilization -file $report_dir/utilization.rpt
 report_route_status -file $report_dir/route.rpt
 report_drc -file $report_dir/drc.rpt
 report_cdc -file $report_dir/cdc.rpt
-check_timing -verbose -file $report_dir/check_timing.rpt
+check_timing -override_defaults {no_clock unconstrained_internal_endpoints no_input_delay no_output_delay partial_input_delay partial_output_delay} -verbose -file $report_dir/check_timing.rpt
+set fd [open $report_dir/check_timing.rpt r]
+set coverage [read $fd]
+close $fd
+foreach check {no_clock unconstrained_internal_endpoints no_input_delay no_output_delay partial_input_delay partial_output_delay} {
+  set pattern [format {checking %s \(([0-9]+)\)} $check]
+  if {![regexp $pattern $coverage ignored count]} { error "Cannot verify timing coverage section: $check" }
+  if {$count != 0} { error "Timing coverage failed: $check ($count)" }
+}
 write_checkpoint -force $report_dir/routed.dcp
 set setup [get_timing_paths -delay_type max -max_paths 1]
 set hold [get_timing_paths -delay_type min -max_paths 1]
