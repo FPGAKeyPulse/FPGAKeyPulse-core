@@ -1,0 +1,48 @@
+name: Validation Report
+on:
+  workflow_run:
+    workflows: [CI, OOC Timing]
+    types: [completed]
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted, dismissed]
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+  issues: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      # Deliberately no checkout or execution of PR code in this privileged job.
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const marker = '<!-- keypulse-validation -->';
+            let prs = context.payload.pull_request ? [context.payload.pull_request] :
+              (await github.rest.pulls.list({owner, repo, state: 'open', per_page: 100})).data
+                .filter(p => p.head.sha === context.payload.workflow_run.head_sha);
+            for (const candidate of prs) {
+              const {data: pr} = await github.rest.pulls.get({owner, repo, pull_number: candidate.number});
+              const sha = pr.head.sha;
+              const runs = (await github.rest.actions.listWorkflowRunsForRepo({owner, repo, head_sha: sha, per_page: 100})).data.workflow_runs;
+              const line = (path, name) => {
+                const r = runs.filter(r => r.path === path).sort((a,b) => b.id-a.id)[0];
+                return r ? `| ${name} | ${r.status === 'completed' ? r.conclusion : r.status} | [run](${r.html_url}) |` :
+                  `| ${name} | NOT RUN | — |`;
+              };
+              const reviews = await github.paginate(github.rest.pulls.listReviews, {owner, repo, pull_number: pr.number, per_page: 100});
+              const latest = new Map();
+              for (const r of reviews.filter(r => r.commit_id === sha)) latest.set(r.user.login, r);
+              const reviewText = latest.size ? [...latest.values()].map(r => `[${r.user.login}](${r.html_url}): ${r.state}`).join('; ') : 'PENDING — no submitted review for this head SHA';
+              const body = `${marker}\nCommit: \`${sha}\`\n\n| Check | Result | Evidence |\n|---|---|---|\n${line('.github/workflows/ci.yml', 'Full regression')}\n${line('.github/workflows/ooc.yml', 'Routed OOC 100 MHz')}\n\nReview: ${reviewText}\n\nOOC reports must include the exact part, Vivado version, setup/hold slack, utilization, CDC and unconstrained-path review. Missing, skipped or cancelled checks are not passes. CI success does not certify USB host enumeration.\n`;
+              const comments = await github.paginate(github.rest.issues.listComments, {owner, repo, issue_number: pr.number, per_page: 100});
+              const existing = comments.find(c => c.user.type === 'Bot' && c.body.startsWith(marker));
+              // Do not overwrite the report for a newer revision while this job was running.
+              if ((await github.rest.pulls.get({owner, repo, pull_number: pr.number})).data.head.sha !== sha) continue;
+              if (existing) await github.rest.issues.updateComment({owner, repo, comment_id: existing.id, body});
+              else await github.rest.issues.createComment({owner, repo, issue_number: pr.number, body});
+            }
