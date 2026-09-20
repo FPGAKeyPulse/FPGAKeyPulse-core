@@ -52,6 +52,9 @@ jobs:
       - name: Run tests
         run: sbt -batch clean test
 
+      - name: Generate OOC targets
+        run: sbt -batch 'core/runMain keypulse.core.tools.GenerateOoc matrix' 'core/runMain keypulse.core.tools.GenerateOoc hid'
+
   publish:
     name: Publish
     runs-on: ubuntu-latest
