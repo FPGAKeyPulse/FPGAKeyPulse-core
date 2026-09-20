@@ -14,7 +14,7 @@ case class Usb3HidDescriptorConfig(
 ) {
   require(vendorId > 0 && vendorId <= 0xffff)
   require(productId >= 0 && productId <= 0xffff)
-  require(maxPowerMa > 0 && maxPowerMa <= 900)
+  require(maxPowerMa > 0 && maxPowerMa <= 896)
   require(u1ExitLatencyUs >= 0 && u1ExitLatencyUs <= 10)
   require(u2ExitLatencyUs >= 0 && u2ExitLatencyUs <= 2047)
   require(intervalExponent >= 1 && intervalExponent <= 16)

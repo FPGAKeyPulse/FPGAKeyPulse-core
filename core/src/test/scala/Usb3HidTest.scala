@@ -40,7 +40,8 @@ class Usb3HidTest extends AnyFunSuite {
     assert(cfg.copy(intervalExponent = 16).serviceIntervalUs == 4096000)
     intercept[IllegalArgumentException](cfg.copy(intervalExponent = 0))
     intercept[IllegalArgumentException](cfg.copy(intervalExponent = 17))
-    intercept[IllegalArgumentException](cfg.copy(maxPowerMa = 901))
+    assert(new Usb3HidDescriptors(cfg.copy(maxPowerMa = 896)).configuration(8) == 112)
+    for (power <- 897 to 901) intercept[IllegalArgumentException](cfg.copy(maxPowerMa = power))
     intercept[IllegalArgumentException](cfg.copy(vendorId = 0))
     assert((d.device ++ d.configuration ++ d.bos ++ d.report).forall(v => v >= 0 && v <= 255))
   }
