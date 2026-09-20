@@ -29,6 +29,8 @@ jobs:
         include:
           - target: matrix
             top: MatrixScan
+          - target: keymap
+            top: BootKeyMapper
           - target: hid
             top: HidKeyboard
     steps:
@@ -44,7 +46,12 @@ jobs:
       - name: Generate RTL
         env:
           TARGET: ${{ matrix.target }}
-        run: sbt "core/runMain keypulse.core.tools.GenerateOoc $TARGET"
+        run: |
+          if [ "$TARGET" = keymap ]; then
+            sbt 'core/runMain keypulse.core.tools.GenerateKeymapOoc'
+          else
+            sbt "core/runMain keypulse.core.tools.GenerateOoc $TARGET"
+          fi
       - name: Routed OOC at 100 MHz
         env:
           PART: ${{ vars.FPGA_PART }}
