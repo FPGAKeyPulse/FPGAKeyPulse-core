@@ -2,18 +2,20 @@
 
 Each feature is a draft PR until regression, review and routed OOC timing pass.
 OOC runs on GitHub-hosted Ubuntu 22.04 with a digest-pinned community image
-containing Vivado 2019.1, not Vivado Lab or a dependency-only image. It targets
+containing Vivado 2024.1, not Vivado Lab or a dependency-only image. It targets
 the user-selected MLK-S02-35T (`xc7a35tfgg484-2`) at 100 MHz. No self-hosted
 machine, runner registration token or repository secret is required.
-Image: `regymm/vivado-lite@sha256:31928da2e0677ebba4561615e52ae1b82a7cf097d0200b8e17162eedd9dedce9`.
+Image: `claudiaortensia/vivado@sha256:ff53f08fba91ff2f13490fb487d17cadac9f3195346af1ec98a8575f4ed05fd7`.
 This is a third-party preinstalled tool distribution, not an AMD-published image
 or a reproduced AMD installer build. Record actual version, image digest and
 routed results in every artifact; availability and device support are verified
 by the real synthesis/implementation job, never inferred from the image name.
 After pulling, the Vivado container runs without networking, credentials, root
 privileges or a Docker socket, with only RTL/scripts and report mounts.
-The image is about 4.7 GB compressed; disposable runner SDKs are removed to make
-space. Other Vivado versions require a separately validated image/digest.
+The image is about 25 GB compressed; disposable runner SDKs are removed to make
+space. The workflow records `vivado -version` and checks the exact part with
+`get_parts` before routing. Other Vivado versions require a separately validated
+image/digest.
 
 Run locally:
 

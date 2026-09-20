@@ -39,8 +39,8 @@ jobs:
     env:
       # User-selected MLK-S02-35T, vendor manual: FGG484 package, -2 grade.
       FPGA_PART: xc7a35tfgg484-2
-      # Community preinstalled Vivado 2019.1, immutable Docker Hub digest.
-      VIVADO_IMAGE: regymm/vivado-lite@sha256:31928da2e0677ebba4561615e52ae1b82a7cf097d0200b8e17162eedd9dedce9
+      # Community preinstalled Vivado 2024.1 image, immutable Docker Hub digest.
+      VIVADO_IMAGE: claudiaortensia/vivado@sha256:ff53f08fba91ff2f13490fb487d17cadac9f3195346af1ec98a8575f4ed05fd7
     steps:
       - uses: actions/checkout@v6
         with:
@@ -65,6 +65,11 @@ jobs:
           docker pull "$VIVADO_IMAGE"
           mkdir -p reports
           docker image inspect "$VIVADO_IMAGE" --format '{{json .RepoDigests}}' > reports/image.json
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            "$VIVADO_IMAGE" vivado -version | tee reports/vivado-version.txt
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --mount "type=bind,src=$PWD/scripts,dst=/scripts,readonly" \
+            "$VIVADO_IMAGE" vivado -mode batch -source /scripts/preflight.tcl
       - name: Routed OOC at 100 MHz
         env:
           TOP: ${{ matrix.top }}
