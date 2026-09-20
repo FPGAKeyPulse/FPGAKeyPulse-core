@@ -1,8 +1,11 @@
 # Hardware selection status
 
-The requested target is a Milianke Artix-family board with enough accessible GPIO
-and a USB 3.0 **device** interface. Selection remains open; do not buy based only
-on a USB-shaped connector or assume JTAG/UART USB can carry HID reports.
+The user selected MLK-S02-35T. The [Milianke hardware manual](https://www.cnblogs.com/milianke/p/17683342.html)
+identifies XC7A35T, FGG484 package and -2 speed grade (the model table transposes
+FFG/FGG; the package text and chip photo show FGG484). The GitHub-hosted OOC workflow explicitly selects `xc7a35tfgg484-2`.
+The board uses a 25 MHz oscillator; a board top must generate the 100 MHz core clock.
+The manual identifies CH340K USB UART, not a USB3 device controller. External USB3
+controller selection, board revision and final pin allocation remain pending.
 
 Official candidates inspected:
 
@@ -23,6 +26,6 @@ not be assumed to enumerate as standard interrupt-endpoint HID keyboards.
 The existing `usb-protocol` PR implements a different packet-level boundary;
 do not connect that boundary to a USB 3.0 PHY without a matching controller.
 
-Before board integration: obtain exact FPGA part/package/speed grade, revisioned
-schematic and pin map, USB controller model and firmware SDK, remaining GPIO
+Before board integration: match the selected part against the actual board revision,
+obtain its schematic and pin map, USB controller model and firmware SDK, remaining GPIO
 budget, and measured row/column settling. No board XDC is supplied until verified.
