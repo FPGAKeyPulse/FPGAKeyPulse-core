@@ -23,6 +23,7 @@ required after integration.
 
 The bot reports CI/OOC run conclusions and latest submitted reviews for the current
 head SHA. It does not manufacture a code review from green CI. An absent review or
-missing OOC run remains pending. The reporter workflow becomes active after this
-branch is merged into the default branch. Do not merge this PR until its own gates
-are satisfied.
+missing OOC run remains pending. Workflow-run and PR-target reporting becomes active after this branch is merged
+into the default branch; review events can exercise the reporter on this PR.
+This infrastructure PR depends on `feat-matrix-1mhz`, because asynchronous column
+ports without synchronizers deliberately fail the OOC constraints.

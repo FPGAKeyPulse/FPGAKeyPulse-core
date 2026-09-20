@@ -12,7 +12,9 @@ jobs:
         env:
           PART: ${{ vars.FPGA_PART }}
           ENABLED: ${{ vars.VIVADO_OOC_ENABLED }}
+          SAME_REPO: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
+          test "$SAME_REPO" = true || { echo '::error::Fork OOC requires a trusted internal branch'; exit 1; }
           test -n "$PART" || { echo '::error::Set FPGA_PART to the exact target part'; exit 1; }
           test "$ENABLED" = true || { echo '::error::Vivado OOC runner is not configured'; exit 1; }
   timing:
@@ -32,6 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-java@v5
         with:
@@ -50,5 +53,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ooc-${{ matrix.target }}-${{ github.sha }}
+          name: ooc-${{ matrix.target }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: reports/

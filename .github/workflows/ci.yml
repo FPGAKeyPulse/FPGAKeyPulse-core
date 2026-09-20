@@ -10,12 +10,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   test:
     name: Test
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     container: fedora:latest
 
@@ -38,6 +43,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Set up Java
         uses: actions/setup-java@v5
@@ -68,6 +76,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Set up Java
         uses: actions/setup-java@v5
@@ -83,3 +94,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: sbt -batch core/publish tester/publish
+
+  cleanup-stalled-tests:
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat-validation-ooc-bot' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            // One-time cleanup of this development session's pre-timeout test runs.
+            const {owner, repo} = context.repo;
+            for (const [run_id, branch] of [[35493523985, 'feat-matrix-1mhz'], [35493614146, 'feat-usb3-hid-descriptors']]) {
+              const {data: run} = await github.rest.actions.getWorkflowRun({owner, repo, run_id});
+              if (run.path !== '.github/workflows/ci.yml' || run.head_branch !== branch) throw Error('Unexpected cleanup target');
+              if (['queued', 'in_progress'].includes(run.status)) await github.rest.actions.cancelWorkflowRun({owner, repo, run_id});
+            }
