@@ -49,7 +49,7 @@ class MatrixScan(config: MatrixScanConfig) extends Component {
   private val waitCounter = Reg(UInt(waitWidth bits)) init (0)
   private val keys = Reg(Bits(config.keyCount bits)) init (0)
 
-  private val idleColumns = if (config.colActiveLow) B((BigInt(1) << config.colCount) - 1, config.colCount bits)
+  private def idleColumns = if (config.colActiveLow) B((BigInt(1) << config.colCount) - 1, config.colCount bits)
                             else B(0, config.colCount bits)
   private val columns = BufferCC(io.cols, init = idleColumns, bufferDepth = config.syncStages)
   private val nextKeys = Bits(config.keyCount bits)
