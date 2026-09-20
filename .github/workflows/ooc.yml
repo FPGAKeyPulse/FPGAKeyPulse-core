@@ -39,8 +39,10 @@ jobs:
     env:
       # User-selected MLK-S02-35T, vendor manual: FGG484 package, -2 grade.
       FPGA_PART: xc7a35tfgg484-2
-      # Community preinstalled Vivado 2024.1 image, immutable Docker Hub digest.
-      VIVADO_IMAGE: claudiaortensia/vivado@sha256:ff53f08fba91ff2f13490fb487d17cadac9f3195346af1ec98a8575f4ed05fd7
+      # Community preinstalled Vivado 2024.1 image. The pull step records the
+      # resolved digest in every artifact because Docker Hub exposes only the
+      # tag in this workflow configuration.
+      VIVADO_IMAGE: gusanagy/xilinx-vivado:2024.1-x11
     steps:
       - uses: actions/checkout@v6
         with:
