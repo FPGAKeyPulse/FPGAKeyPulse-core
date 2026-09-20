@@ -66,3 +66,18 @@ BSD 3-Clause
 <a href="https://github.com/FPGAKeyPulse/FPGAKeyPulse-core/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=FPGAKeyPulse/FPGAKeyPulse-core" />
 </a>
+
+## Fast matrix scanning
+
+`MatrixScanConfig.fast2xN(N)` uses two rows, N parallel columns, and 50
+100 MHz clocks per row: **1 MHz complete-matrix scan rate**, independent of N.
+This is an internal scan rate, not a USB host report rate.
+Columns pass through a two-stage synchronizer. Board RC settling must fit inside
+row dwell minus synchronizer latency; verify this on hardware. Mechanical contact
+bounce is not removed by the scanner. Use per-switch diodes to prevent ghosting.
+
+`keys` updates one row at a time. `frameKeys` is a coherent snapshot, updated
+only when the last row is sampled. Registered `frameValid` accompanies that
+snapshot; downstream logic must consume `frameKeys`, not a partially updated frame.
+`sampleValid` accompanies `sampledRowIndex`; `rowIndex` identifies the row currently
+driven. This changes the previous pre-edge valid-pulse semantics.
