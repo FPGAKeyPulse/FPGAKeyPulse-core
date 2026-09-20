@@ -1,0 +1,57 @@
+name: OOC Timing
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  configuration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require configured target and runner
+        env:
+          PART: ${{ vars.FPGA_PART }}
+          ENABLED: ${{ vars.VIVADO_OOC_ENABLED }}
+          SAME_REPO: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          test "$SAME_REPO" = true || { echo '::error::Fork OOC requires a trusted internal branch'; exit 1; }
+          test -n "$PART" || { echo '::error::Set FPGA_PART to the exact target part'; exit 1; }
+          test "$ENABLED" = true || { echo '::error::Vivado OOC runner is not configured'; exit 1; }
+  timing:
+    needs: configuration
+    # Use a disposable runner with no secrets; never run forks on private runners.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, linux, vivado]
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: matrix
+            top: MatrixScan
+          - target: hid
+            top: HidKeyboard
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: sbt/setup-sbt@v1
+      - name: Generate RTL
+        env:
+          TARGET: ${{ matrix.target }}
+        run: sbt "core/runMain keypulse.core.tools.GenerateOoc $TARGET"
+      - name: Routed OOC at 100 MHz
+        env:
+          PART: ${{ vars.FPGA_PART }}
+          TOP: ${{ matrix.top }}
+        run: vivado -mode batch -source scripts/ooc.tcl -tclargs "$PART" "$TOP" generated/ooc reports
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ooc-${{ matrix.target }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: reports/
