@@ -24,6 +24,14 @@ From the repository root:
 docker build -t keypulse-vivado-runner:local infra/vivado-runner
 ```
 
+Alternatively, download the `vivado-runner-<head-sha>` artifact from a successful
+`Runner Image` workflow (retained for seven days), then load and tag it:
+
+```bash
+zstd -dc keypulse-vivado-runner.tar.zst | docker load
+docker tag keypulse-vivado-runner:test keypulse-vivado-runner:local
+```
+
 The GitHub runner archive is version/hash pinned. Java 17 and sbt are provisioned
 by the existing OOC workflow. Rebuild when updating runner/OS dependencies.
 The `Runner Image` workflow builds the image and executes Runner.Listener,
