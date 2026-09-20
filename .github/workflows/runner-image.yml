@@ -1,0 +1,41 @@
+name: Runner Image
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Check shell scripts
+        run: |
+          bash -n infra/vivado-runner/entrypoint.sh
+          bash -n infra/vivado-runner/install-vivado.sh
+          bash -n infra/vivado-runner/run.sh
+          shellcheck infra/vivado-runner/*.sh
+      - name: Build runner image
+        run: docker build -t keypulse-vivado-runner:test infra/vivado-runner
+      - name: Check runner runtime dependencies
+        run: |
+          docker run --rm --entrypoint /bin/bash keypulse-vivado-runner:test -c './bin/Runner.Listener --version'
+          # This image intentionally has no Vivado binaries until mounted.
+          if docker run --rm keypulse-vivado-runner:test --check; then
+            echo 'Missing Vivado must fail preflight' >&2
+            exit 1
+          fi
+      - name: Verify registration credential lifetime
+        run: bash infra/vivado-runner/test-credentials.sh
+      - name: Export runner image
+        run: docker save keypulse-vivado-runner:test | zstd -T0 -o keypulse-vivado-runner.tar.zst
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vivado-runner-${{ github.event.pull_request.head.sha || github.sha }}
+          path: keypulse-vivado-runner.tar.zst
+          compression-level: 0
+          retention-days: 7
