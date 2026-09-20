@@ -29,10 +29,24 @@ jobs:
         include:
           - target: matrix
             top: MatrixScan
-          - target: debounce
-            top: KeyDebounce
+            main: GenerateOoc
+            args: matrix
           - target: hid
             top: HidKeyboard
+            main: GenerateOoc
+            args: hid
+          - target: debounce
+            top: KeyDebounce
+            main: GenerateDebounceOoc
+            args: ''
+          - target: keyboard
+            top: KeyboardCore
+            main: GenerateKeyboardOoc
+            args: ''
+          - target: keymap
+            top: BootKeyMapper
+            main: GenerateKeymapOoc
+            args: ''
     steps:
       - uses: actions/checkout@v6
         with:
@@ -45,13 +59,9 @@ jobs:
       - uses: sbt/setup-sbt@v1
       - name: Generate RTL
         env:
-          TARGET: ${{ matrix.target }}
-        run: |
-          if [ "$TARGET" = debounce ]; then
-            sbt 'core/runMain keypulse.core.tools.GenerateDebounceOoc'
-          else
-            sbt "core/runMain keypulse.core.tools.GenerateOoc $TARGET"
-          fi
+          MAIN: ${{ matrix.main }}
+          ARGS: ${{ matrix.args }}
+        run: sbt "core/runMain keypulse.core.tools.$MAIN $ARGS"
       - name: Routed OOC at 100 MHz
         env:
           PART: ${{ vars.FPGA_PART }}
