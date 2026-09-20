@@ -87,7 +87,6 @@ class MatrixScan(config: MatrixScanConfig) extends Component {
   }
 
   val selectedRows = Bits(config.rowCount bits)
-  selectedRows := 0
   for (row <- 0 until config.rowCount) {
     selectedRows(row) := rowIndex === row
   }
