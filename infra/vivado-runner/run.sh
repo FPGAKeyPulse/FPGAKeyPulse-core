@@ -11,6 +11,7 @@ set -euo pipefail
 [[ "$VIVADO_ROOT" == /* && -d "$VIVADO_ROOT" && "$VIVADO_ROOT" != / ]] || exit 2
 [[ "$VIVADO_SETTINGS" == "$VIVADO_ROOT/"* && -r "$VIVADO_SETTINGS" ]] || exit 2
 [[ "$RUNNER_TOKEN_FILE" == /* && -f "$RUNNER_TOKEN_FILE" ]] || exit 2
+export VIVADO_SETTINGS FPGA_PART REPO_URL RUNNER_NAME
 # Preserve the installation's absolute path: settings64.sh may contain it.
 exec "$CONTAINER_ENGINE" run --rm --init --cap-drop ALL --security-opt no-new-privileges \
   --mount "type=bind,src=$VIVADO_ROOT,dst=$VIVADO_ROOT,readonly" \

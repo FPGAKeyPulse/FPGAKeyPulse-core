@@ -10,7 +10,7 @@ No FPGA hardware or USB access is needed for routed OOC timing.
 
 Use a dedicated Linux x86-64 build machine with Docker, internet access to GitHub,
 AMD (during installation), Maven and sbt repositories. Plan for 16 GB RAM and
-at least 150 GB free disk when staging a full installer (a planning budget, not
+at least 300 GB free disk when staging a full installer (a planning budget, not
 AMD's minimum). A web install selecting only Vivado and Artix-7 can use less;
 check the installer's displayed disk requirement. Do not use Vivado Lab Edition:
 it does not provide synthesis/place/route. Do not mount a Docker socket or

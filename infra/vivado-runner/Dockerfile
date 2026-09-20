@@ -15,6 +15,9 @@ RUN useradd --create-home --uid 1000 runner && mkdir /opt/runner \
     && tar xzf /tmp/runner.tgz -C /opt/runner && rm /tmp/runner.tgz \
     && chown -R runner:runner /opt/runner
 COPY entrypoint.sh preflight.tcl install-vivado.sh /opt/keypulse/
+RUN mkdir -p /home/runner/toolcache && chown runner:runner /home/runner/toolcache
+ENV RUNNER_TOOL_CACHE=/home/runner/toolcache
+ENV AGENT_TOOLSDIRECTORY=/home/runner/toolcache
 USER runner
 WORKDIR /opt/runner
 ENTRYPOINT ["/usr/bin/tini", "--", "/bin/bash", "/opt/keypulse/entrypoint.sh"]
